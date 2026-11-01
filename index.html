@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a0a14" />
+  <title>LUMINA - L'Éclat Perdu</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230e1240'/%3E%3Cpath d='M8 1l2 5 5 2-5 2-2 5-2-5-5-2 5-2z' fill='%23ffd23c'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="stage"><canvas id="game" width="320" height="192"></canvas></div>
+    <div id="hud">
+      <button id="btn-sound" class="mini" aria-label="Son" title="Son (M pour menu)">&#9835;</button>
+    </div>
+    <div id="controls" aria-hidden="true">
+      <div id="dpad">
+        <div class="dp up" data-dir="up"></div><div class="dp left" data-dir="left"></div><div class="dp right" data-dir="right"></div><div class="dp down" data-dir="down"></div><div class="dp mid"></div>
+      </div>
+      <div id="actions">
+        <button id="btn-menu" class="pill">MENU</button>
+        <div id="ab"><button id="btn-b" class="round">B</button><button id="btn-a" class="round">A</button></div>
+      </div>
+    </div>
+    <div id="rotate" hidden><span class="icon">&#8635;</span> Mieux en mode paysage</div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

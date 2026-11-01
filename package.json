@@ -1,0 +1,19 @@
+{
+  "name": "lumina-eclat-perdu",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LUMINA – L'Éclat Perdu : petite aventure de capture de créatures jouable dans le navigateur.",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "check": "node tools/check-data.mjs"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "@fontsource/press-start-2p": "^5.3.0"
+  }
+}
