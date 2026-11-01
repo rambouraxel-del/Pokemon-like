@@ -27,7 +27,7 @@ Hébergement de test : le workflow `.github/workflows/pages.yml` déploie `dist/
 | Menu | Échap, Tab, M | Bouton **MENU** |
 
 Le bouton ♫ (en haut à droite) coupe/rétablit le son ; le volume se règle dans Menu → Options.
-Sur iPhone : préférer le mode paysage (une bulle l'indique en portrait) ; « Ajouter à l'écran d'accueil » permet de jouer en plein écran.
+Sur iPhone : le son démarre au premier toucher (et l'interrupteur silencieux du téléphone coupe aussi le son web) ; préférer le mode paysage (une bulle l'indique en portrait) ; « Ajouter à l'écran d'accueil » permet de jouer en plein écran.
 
 ## Contenu
 

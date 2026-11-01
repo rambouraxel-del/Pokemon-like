@@ -44,6 +44,10 @@ export const SCRIPTS = {
   async mom(w) {
     if (!G.flag('starter')) {
       await w.say(["Noa ! Enfin réveillé ! Le Phare s'est éteint cette nuit... tout le village est sens dessus dessous.", "Le Professeur Sauge veut te voir. Son laboratoire est le grand bâtiment bleu, au centre du village."]);
+      if (!G.flag('tipControls')) {
+        G.setFlag('tipControls');
+        await w.say(["Maman : Un conseil : appuie sur A (ou Espace) pour parler ou examiner, maintiens B (ou X) pour courir, et ouvre le menu avec MENU (ou Échap).", "Maman : Ton objectif est toujours consultable dans le menu. Sors par la porte, en bas de la pièce !"]);
+      }
     } else if (G.flag('ending')) {
       await w.say(["Le Phare brille de nouveau ! Je suis si fière de toi, Noa.", "Repose-toi un peu. Je m'occupe de tes Lumins."]);
       await w.healTeam({ map: 'home', x: 4, y: 5, dir: 'down' }, true);
@@ -71,7 +75,7 @@ export const SCRIPTS = {
   },
   async aide(w) {
     if (G.flag('ending')) { await w.say(["Tout le village parle de toi !"]); return; }
-    await w.say(["Les Lumins sont plus à l'aise face à un type qu'ils dominent. Flore bat Onde, Onde bat Braise, Braise bat Flore.", "Éclat et Ombre s'affaiblissent mutuellement !"]);
+    await w.say(["Les Lumins sont plus à l'aise face à un type qu'ils dominent. Flore bat Onde, Onde bat Braise, Braise bat Flore.", "Éclat et Ombre s'affaiblissent mutuellement ! Les créatures de l'Ombre redoutent l'Éclat."]);
   },
   async rivalLab(w) { await w.say(["Je t'attends, Noa ! Choisis vite ton Lumin : je prendrai celui qui gagne contre le tien !"], 'Lior'); },
   async labTable(w) { await w.say(["Des notes : « Les Lanternes de capture sont plus efficaces sur un Lumin affaibli. »"]); },
@@ -203,7 +207,7 @@ export const SCRIPTS = {
     }
     if (!introDone) await w.say(["Vesper : Montre-moi que ton lien avec tes Lumins est sincère !"], 'Maître Vesper');
     else await w.say(["Vesper : Je ne te laisserai pas approcher de l'autel sans te battre !"], 'Maître Vesper');
-    const res = await w.trainerBattle({ trainer: { id: 'vesper', cls: 'Gardien', trainerName: 'Maître Vesper', team: [['noctule', 11], ['lucioline', 11], ['tenebrume', 13]], reward: 500, boss: true, items: ['grand_baume'] }, npc });
+    const res = await w.trainerBattle({ trainer: { id: 'vesper', cls: 'Gardien', trainerName: 'Maître Vesper', team: [['noctule', 10], ['lucioline', 10], ['tenebrume', 11]], reward: 500, boss: true, items: ['grand_baume'] }, npc });
     if (res !== 'win') return;
     G.setFlag('bossBeaten');
     G.save();

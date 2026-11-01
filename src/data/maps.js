@@ -265,7 +265,7 @@ function ruins() {
       { id: 'disciple1', x: 14, y: 19, dir: 'down', look: 'disciple', name: 'Disciple', talk: 'trainer', trainer: { id: 'disciple1', cls: "Disciple de l'Ombre", sight: 4, reward: 200, team: [['noctule', 9], ['noctule', 10]],
         intro: ["L'Éclat est en sécurité avec Maître Vesper. Fais demi-tour !"], defeat: ["Impossible... Mais Maître Vesper t'arrêtera."], after: ["Maître Vesper t'attend dans le sanctuaire..."] } },
       { id: 'disciple2', x: 19, y: 10, dir: 'left', look: 'disciple', name: 'Disciple', talk: 'trainer', trainer: { id: 'disciple2', cls: "Disciple de l'Ombre", sight: 4, reward: 220, team: [['ronceau', 10], ['lucioline', 10]],
-        intro: ["Tu ne passeras pas ! L'ombre protège la gardienne !"], defeat: ["Tu es plus fort que prévu..."], after: ["Va... Maître Vesper n'est pas méchant. Il est juste désespéré."] } },
+        intro: ["Tu ne passeras pas ! L'ombre protège la gardienne !"], defeat: ["Tu es plus fort que prévu..."], after: ["Va... Maître Vesper n'est pas méchant. Il est juste désespéré. Sa gardienne Ténébrume craint la lumière, souviens-t'en."] } },
     ],
     items: [{ id: 'r_baume1', x: 5, y: 15, item: 'grand_baume', n: 1 }, { id: 'r_rappel', x: 24, y: 17, item: 'rappel', n: 1 }, { id: 'r_super', x: 8, y: 6, item: 'super_lanterne', n: 2 }],
     events: [],

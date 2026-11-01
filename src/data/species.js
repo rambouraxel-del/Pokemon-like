@@ -36,7 +36,7 @@ export const SPECIES = {
     desc: "Phalène lumineuse. On raconte que son halo guide les voyageurs perdus.",
   },
   tenebrume: {
-    id: 'tenebrume', no: 8, name: 'Ténébrume', type: 'ombre', base: { hp: 78, atk: 88, def: 72, spd: 78 }, catchRate: 15, exp: 140,
+    id: 'tenebrume', no: 8, name: 'Ténébrume', type: 'ombre', base: { hp: 72, atk: 80, def: 66, spd: 70 }, catchRate: 15, exp: 140,
     learnset: [[1, 'morsure'], [1, 'hurlement'], [1, 'griffe'], [12, 'eclipse'], [14, 'repos']],
     desc: "Gardienne des ruines, longtemps asservie par l'ombre. Un cristal brille sur son front.",
   },

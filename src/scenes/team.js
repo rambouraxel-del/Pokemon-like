@@ -13,6 +13,7 @@ import { creatureIcon, creatureSprite } from '../gfx/creatures.js';
 import { drawBackdrop, hpBar, typeBadge, smallText } from './common.js';
 
 class SummaryScene {
+  get sceneId() { return 'summary'; }
   constructor(index, done) { this.i = index; this.done = done; this.t = 0; }
   update(dt) {
     this.t += dt; const n = G.s.team.length;
@@ -32,7 +33,7 @@ class SummaryScene {
     const rows = [['PV', `${c.hp}/${st.maxHp}`], ['Attaque', st.atk], ['Défense', st.def], ['Vitesse', st.spd]];
     rows.forEach(([k, v], i) => { text(g, k, 148, 32 + i * 12, COL.dim); text(g, String(v), 306, 32 + i * 12, COL.text, null, 'right'); });
     const nxt = expForLevel(c.level + 1) - c.exp;
-    smallText(g, `Exp ${c.exp}  (prochain niveau: ${Math.max(0, nxt)})`, 148, 82);
+    smallText(g, `Exp ${c.exp}  Niveau suivant: ${Math.max(0, nxt)}`, 148, 82);
     g.fillStyle = '#2a2a44'; g.fillRect(148, 91, 158, 4); g.fillStyle = '#48a8f8'; g.fillRect(149, 92, Math.round(156 * expProgress(c)), 2);
     panel(g, 140, 104, 174, 82, { fill: '#fbf8ee' });
     c.moves.forEach((id, i) => {
@@ -45,6 +46,7 @@ class SummaryScene {
 }
 
 export class TeamScene {
+  get sceneId() { return 'team'; }
   // opts: {mode:'menu'|'switch'|'item', title, active, cancel, validate}
   constructor(opts, resolve) { this.o = opts; this.resolve = resolve; this.i = Math.max(0, opts.active ?? 0); this.t = 0; this.swapFrom = null; this.busy = false; }
   get team() { return G.s.team; }

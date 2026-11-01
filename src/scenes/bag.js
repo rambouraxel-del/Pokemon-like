@@ -2,7 +2,7 @@
 import { W, H } from '../config.js';
 import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
-import { ui, text, panel, cursor, COL } from '../core/ui.js';
+import { ui, text, panel, cursor, COL, wrap } from '../core/ui.js';
 import { scenes } from '../core/scenes.js';
 import { G } from '../systems/game.js';
 import { ITEMS } from '../data/items.js';
@@ -12,6 +12,7 @@ import { drawBackdrop, smallText } from './common.js';
 import { pickTeam } from './team.js';
 
 export class BagScene {
+  get sceneId() { return 'bag'; }
   // opts: {mode:'menu'|'battle', wild, validate(id, targetIdx)->string|null}
   constructor(opts, resolve) { this.o = opts; this.resolve = resolve; this.i = 0; this.scroll = 0; this.t = 0; this.busy = false; }
   list() { return Object.keys(G.s.items).filter((k) => G.s.items[k] > 0 && ITEMS[k]).sort((a, b) => order(a) - order(b)); }
@@ -67,7 +68,7 @@ export class BagScene {
     if (l.length > 6) { if (this.scroll > 0) smallText(g, '^', 190, 28); if (this.scroll + 6 < l.length) smallText(g, 'v', 190, 144); }
     panel(g, 200, 26, 114, 60, { fill: '#fff8d8' }); text(g, 'Écus', 208, 34, COL.dim); text(g, String(G.s.money), 306, 46, COL.text, null, 'right');
     panel(g, 6, 158, W - 12, 30);
-    const cur = l[this.i]; if (cur) { const words = ITEMS[cur].desc; text(g, words.length > 36 ? words.slice(0, 36) : words, 14, 163, COL.text); if (words.length > 36) text(g, words.slice(36), 14, 175, COL.text); }
+    const cur = l[this.i]; if (cur) wrap(ITEMS[cur].desc, 35).slice(0, 2).forEach((ln, k) => text(g, ln, 14, 163 + k * 12, COL.text));
   }
 }
 const order = (id) => ({ lanterne: 0, super_lanterne: 1, baume: 2, grand_baume: 3, rappel: 4 }[id] ?? 9);

@@ -21,5 +21,8 @@ Le Phare d'Aubépine s'éteint : l'Éclat du Prisme a disparu du Sanctuaire. Ma�
 - Tests automatisés en CI (le script `tools/playthrough.cjs` existe mais nécessite Playwright + navigateur).
 - Mode portrait tactile : jouable mais paysage recommandé ; PWA/manifest à ajouter.
 
-## Vérifié / non vérifié
-Voir la section « Vérifications » du compte rendu final dans le README ou l'historique de session.
+## Vérifié / non vérifié (état au 1er prototype)
+**Vérifié automatiquement (Chromium headless, build de production servi en sous-dossier, aucune erreur console)** — `node tools/playthrough.cjs <url>` :
+nouvelle partie → intro → maman → blocage de sortie sans compagnon → laboratoire (choix du starter, combat rival tuto) → boutique (achats) → soins → forêt (rencontres, capture, ajout à l'équipe) → dresseurs, rival 2, source, gardien (sceau exige 2 Lumins) → sanctuaire → disciples → boss (défaites + reprises au point de soin constatées) → épilogue → sauvegarde.
+Aussi testés à part : menus (équipe, résumé, déplacement d'ordre, sac + Baume/Rappel, bestiaire, réserve, options), sauvegarde manuelle → rechargement de la page → « Continuer » (état identique), confirmation avant effacement, fuite sauvage / fuite interdite contre un dresseur, changement de Lumin en combat, capture avec équipe pleine (→ réserve), apprentissage d'une 5e attaque, audio (amplitude non nulle, sourdine = silence), touches tactiles réelles (CDP) sur écran 844×390 (croix, A, MENU), absence de scroll, affichage portrait.
+**Non vérifié** : appareil iPhone réel (Safari/iOS : audio après premier toucher, plein écran, encoche), manettes, navigateurs autres que Chromium, rendu sur très petits écrans (< 360 px), accessibilité clavier hors jeu, déploiement GitHub Pages (workflow écrit, non exécuté).

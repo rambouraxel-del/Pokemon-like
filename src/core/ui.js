@@ -6,10 +6,30 @@ import { audio } from './audio.js';
 export const FONT = '8px "Press Start 2P", monospace';
 export const COL = { text: '#2a2a44', dim: '#7a7a96', white: '#ffffff', navy: '#2c3a78', blue: '#4a6ad0', cream: '#fbf8ee', sel: '#e8f0ff', red: '#d84a4a', green: '#3aa05a', gold: '#e8b830' };
 
-export function text(g, str, x, y, color = COL.text, shadow = null, align = 'left') {
-  g.font = FONT; g.textBaseline = 'top'; g.textAlign = align;
-  if (shadow) { g.fillStyle = shadow; g.fillText(str, x + 1, y + 1); }
-  g.fillStyle = color; g.fillText(str, x, y);
+// La police pixel ne dessine pas bien les capitales accentuées : on compose lettre + accent.
+const ACC = { 'É': ['E', 'a'], 'È': ['E', 'g'], 'Ê': ['E', 'c'], 'À': ['A', 'g'], 'Ç': ['C', 'z'], 'Ô': ['O', 'c'], 'Î': ['I', 'c'] };
+const HAS_ACC = /[ÉÈÊÀÇÔÎ]/;
+function accMark(g, kind, x, y, size) {
+  const u = size >= 8 ? 2 : 1, cx = x + Math.floor(size / 2) - 1;
+  if (kind === 'a') { g.fillRect(cx + u, y - 2 * u, u, u); g.fillRect(cx, y - u, u, u); }
+  else if (kind === 'g') { g.fillRect(cx, y - 2 * u, u, u); g.fillRect(cx + u, y - u, u, u); }
+  else if (kind === 'c') { g.fillRect(cx + u, y - 2 * u, u, u); g.fillRect(cx, y - u, u, u); g.fillRect(cx + 2 * u, y - u, u, u); }
+  else if (kind === 'z') { g.fillRect(cx + u, y + size - 1, u, u); g.fillRect(cx, y + size, u, u); }
+}
+function fillAcc(g, str, x, y, size, align) {
+  const w = str.length * size; const x0 = align === 'right' ? x - w : align === 'center' ? x - w / 2 : x;
+  g.textAlign = 'left';
+  [...str].forEach((ch, i) => {
+    const a = ACC[ch]; const px = x0 + i * size;
+    if (a) { g.fillText(a[0], px, y); accMark(g, a[1], px, y, size); } else g.fillText(ch, px, y);
+  });
+}
+// texte (police 8 px par défaut ; size=6 pour les petites mentions)
+export function text(g, str, x, y, color = COL.text, shadow = null, align = 'left', size = 8) {
+  g.font = size === 8 ? FONT : `${size}px "Press Start 2P", monospace`; g.textBaseline = 'top'; g.textAlign = align;
+  const acc = HAS_ACC.test(str);
+  if (shadow) { g.fillStyle = shadow; if (acc) fillAcc(g, str, x + 1, y + 1, size, align); else g.fillText(str, x + 1, y + 1); }
+  g.fillStyle = color; if (acc) fillAcc(g, str, x, y, size, align); else g.fillText(str, x, y);
 }
 export const textWidth = (str) => str.length * 8;
 
@@ -113,6 +133,7 @@ class UI {
     const m = this.menu;
     if (m) {
       const n = m.opts.length;
+      if (m.index >= n || m.index < 0) m.index = 0;
       const prev = m.index;
       if (input.pressed('up')) m.index = m.cols === 1 ? (m.index + n - 1) % n : (m.index - m.cols >= 0 ? m.index - m.cols : m.index);
       if (input.pressed('down')) m.index = m.cols === 1 ? (m.index + 1) % n : (m.index + m.cols < n ? m.index + m.cols : m.index);
@@ -148,7 +169,7 @@ class UI {
       if (m.draw) m.draw(g, m);
       else {
         if (!m.noPanel) panel(g, m.x, m.y, m.w, m.h);
-        if (m.title) text(g, m.title, m.x + 8, m.y - 10, COL.white, COL.navy);
+        if (m.title) { const tw = m.title.length * 8 + 14; panel(g, m.x, m.y - 17, tw, 17, { fill: '#e6eeff' }); text(g, m.title, m.x + 7, m.y - 12, COL.navy); }
         m.opts.forEach((o, i) => {
           const cx = m.x + 10 + (i % m.cols) * m.cw, cy = m.y + 7 + Math.floor(i / m.cols) * m.lineH;
           text(g, o.label, cx + 8, cy, o.disabled ? COL.dim : COL.text);

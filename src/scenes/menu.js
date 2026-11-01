@@ -14,9 +14,10 @@ import { OptionsScene } from './options.js';
 import { smallText } from './common.js';
 import { wrap } from '../core/ui.js';
 
-const ITEMS_MENU = ['Bestiaire', 'Équipe', 'Sac', 'Objectif', 'Réserve', 'Sauvegarder', 'Options', 'Fermer'];
+const ITEMS_MENU = ['Bestiaire', 'Équipe', 'Sac', 'Objectif', 'Réserve', 'Sauvegarder', 'Options', 'Titre', 'Fermer'];
 
 export class MenuScene {
+  get sceneId() { return 'menu'; }
   constructor(world, resolve) { this.world = world; this.resolve = resolve; this.i = 0; this.t = 0; this.busy = false; this.transparent = true; }
   close() { scenes.pop(); this.resolve(); }
   update(dt) {
@@ -36,6 +37,10 @@ export class MenuScene {
       else if (a === 'Objectif') await ui.say([objective()], 'Objectif');
       else if (a === 'Réserve') await new Promise((res) => scenes.push(new BoxScene(res)));
       else if (a === 'Options') await new Promise((res) => scenes.push(new OptionsScene(res, this.world)));
+      else if (a === 'Titre') {
+        const r = await ui.ask('Retourner au titre ? (la progression non sauvegardée sera perdue)', ['Non', 'Oui']);
+        if (r === 1) { this.close(); window.dispatchEvent(new Event('lumina:title')); }
+      }
       else if (a === 'Sauvegarder') {
         const r = await ui.ask('Sauvegarder la partie ?', ['Oui', 'Non']);
         if (r === 0) { const p = this.world.player; G.s.player = { map: this.world.mapId, x: p.x, y: p.y, dir: p.dir }; const ok = G.save(); audio.sfx('save'); await ui.say([ok ? 'Partie sauvegardée !' : "Échec de la sauvegarde (stockage indisponible)."]); }
@@ -43,8 +48,8 @@ export class MenuScene {
     } finally { this.busy = false; }
   }
   render(g) {
-    const x = W - 98;
-    panel(g, x, 6, 92, ITEMS_MENU.length * 16 + 12);
+    const x = W - 116;
+    panel(g, x, 6, 110, ITEMS_MENU.length * 16 + 12);
     ITEMS_MENU.forEach((s, i) => { const y = 13 + i * 16; text(g, s, x + 20, y, COL.text); if (i === this.i) cursor(g, x + 8, y); });
     // résumé en bas à gauche
     panel(g, 6, 6, 118, 54, { fill: '#fff8d8' });

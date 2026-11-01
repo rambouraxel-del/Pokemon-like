@@ -1,13 +1,14 @@
 import { W, H } from '../config.js';
 import { input } from '../core/input.js';
 import { audio } from '../core/audio.js';
-import { ui, text, panel, cursor, COL } from '../core/ui.js';
+import { ui, text, panel, cursor, COL, wrap } from '../core/ui.js';
 import { scenes } from '../core/scenes.js';
 import { G } from '../systems/game.js';
 import { ITEMS, SHOP_STOCK } from '../data/items.js';
 import { drawBackdrop, smallText } from './common.js';
 
 export class ShopScene {
+  get sceneId() { return 'shop'; }
   constructor(resolve) { this.resolve = resolve; this.i = 0; this.t = 0; this.busy = false; }
   update(dt) {
     this.t += dt; if (this.busy) return;
@@ -44,6 +45,6 @@ export class ShopScene {
     panel(g, 210, 26, 104, 52, { fill: '#fff8d8' }); text(g, 'Écus', 218, 34, COL.dim); text(g, String(G.s.money), 306, 48, COL.text, null, 'right');
     const id = SHOP_STOCK[this.i]; if (id) smallText(g, `Possédé: ${G.count(id)}`, 218, 64, COL.text);
     panel(g, 6, 158, W - 12, 30);
-    if (id) { const d = ITEMS[id].desc; text(g, d.slice(0, 36), 14, 163, COL.text); if (d.length > 36) text(g, d.slice(36), 14, 175, COL.text); }
+    if (id) wrap(ITEMS[id].desc, 35).slice(0, 2).forEach((ln, k) => text(g, ln, 14, 163 + k * 12, COL.text));
   }
 }

@@ -17,7 +17,7 @@ function freshState() {
     items: { lanterne: 0, baume: 0 },
     money: 100,
     dex: {},                   // espèce -> 'seen' | 'caught'
-    lastHeal: { map: 'village', x: 14, y: 14, dir: 'down' },
+    lastHeal: { map: 'village', x: 23, y: 8, dir: 'down' },     // devant la Maison des Soins
     playtime: 0,
     stats: { battles: 0, captures: 0, steps: 0 },
   };

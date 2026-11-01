@@ -12,6 +12,7 @@ import { creatureIcon } from '../gfx/creatures.js';
 import { drawBackdrop, hpBar, smallText } from './common.js';
 
 export class BoxScene {
+  get sceneId() { return 'box'; }
   constructor(resolve) { this.resolve = resolve; this.col = 0; this.i = 0; this.t = 0; this.busy = false; this.scroll = 0; }
   list() { return this.col === 0 ? G.s.team : G.s.box; }
   update(dt) {

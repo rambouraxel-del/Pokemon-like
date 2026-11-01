@@ -9,6 +9,7 @@ import { creatureSprite, creatureSilhouette } from '../gfx/creatures.js';
 import { drawBackdrop, typeBadge, smallText } from './common.js';
 
 export class DexScene {
+  get sceneId() { return 'dex'; }
   constructor(resolve) { this.resolve = resolve; this.i = 0; this.t = 0; }
   update(dt) {
     this.t += dt; const n = SPECIES_LIST.length;

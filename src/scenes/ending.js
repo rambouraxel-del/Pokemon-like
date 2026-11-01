@@ -14,6 +14,7 @@ const PAGES = [
 ];
 
 export class EndingScene {
+  get sceneId() { return 'ending'; }
   constructor(done) { this.done = done; this.t = 0; this.page = 0; this.shown = 0; this.phase = 'story'; this.finished = false; }
   enter() { audio.music('ending'); }
   update(dt) {

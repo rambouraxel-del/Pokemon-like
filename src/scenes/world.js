@@ -25,12 +25,13 @@ const WALK = 72, RUN = 120;
 const BASEKEY = {};
 
 export class WorldScene {
+  get sceneId() { return 'world'; }
   constructor() {
-    this.map = null; this.mapId = null; this.time = 0; this.busy = false;
+    this.map = null; this.mapId = null; this.busy = false;
     this.player = { x: 0, y: 0, px: 0, py: 0, dir: 'down', moving: null, frame: 0, anim: 0, turn: 0 };
     this.npcs = []; this.cam = { x: 0, y: 0 };
     this.stepsSinceBattle = 5; this.banner = null; this.exclaim = null; this.sheet = characterSheet('player');
-    this.pop = []; this.vignette = null; this.baseCanvas = null; this.glowT = 0;
+    this.pop = []; this.vignette = null; this.baseCanvas = null;
   }
 
   // ----- chargement de carte -----
@@ -81,11 +82,12 @@ export class WorldScene {
     this.dark = m.theme === 'ruins' ? 'rgba(30,40,100,0.16)' : m.theme === 'forest' ? 'rgba(10,50,40,0.12)' : null;
   }
 
+  get time() { return clock.time; }
+  get glowT() { return clock.time; }
   enter() {}
   start(fromSave) {
     const p = G.s.player;
     this.loadMap(p.map, p.x, p.y, p.dir);
-    this.time = 0;
   }
 
   // ----- helpers de scripts (API `w`) -----
@@ -155,7 +157,6 @@ export class WorldScene {
 
   // ----- boucle -----
   update(dt) {
-    this.time += dt; this.glowT += dt;
     if (this.healFx > 0) this.healFx -= dt;
     this.updateMoving(this.player, dt);
     for (const n of this.npcs) { n.hidden = n.def.hideIf ? !!n.def.hideIf(G) : false; }
@@ -423,7 +424,7 @@ export class WorldScene {
         }
       }
     } else if (o.kind === 'bld') {
-      const b = o.b; const c = buildingSprite({ w: b.w, h: b.h, wall: b.wall, roof: b.roof, trim: b.trim, base: b.base, door: b.door, doorC: b.doorC, emblem: b.emblem, awning: b.awning, windows: b.windows });
+      const b = o.b; const c = b._spr || (b._spr = buildingSprite({ w: b.w, h: b.h, wall: b.wall, roof: b.roof, trim: b.trim, base: b.base, door: b.door, doorC: b.doorC, emblem: b.emblem, awning: b.awning, windows: b.windows }));
       g.fillStyle = 'rgba(20,20,50,0.22)'; g.fillRect(b.x * T + 4, (b.y + b.h) * T - 3, b.w * T, 5);
       g.drawImage(c, b.x * T, (b.y + b.h) * T - c.height);
     } else if (o.kind === 'item') {

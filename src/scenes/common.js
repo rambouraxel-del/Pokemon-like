@@ -23,9 +23,7 @@ export function hpBar(g, x, y, w, cur, max) {
 }
 export function typeBadge(g, x, y, type) {
   const tc = TYPES[type]; g.fillStyle = tc.color; g.fillRect(x, y, tc.name.length * 6 + 6, 9);
-  g.font = '6px "Press Start 2P"'; g.fillStyle = '#fff'; g.textBaseline = 'top'; g.textAlign = 'left'; g.fillText(tc.name.toUpperCase(), x + 3, y + 2);
+  text(g, tc.name.toUpperCase(), x + 3, y + 2, '#fff', null, 'left', 6);
   return tc.name.length * 6 + 6;
 }
-export function smallText(g, str, x, y, color = COL.dim, align = 'left') {
-  g.font = '6px "Press Start 2P"'; g.fillStyle = color; g.textBaseline = 'top'; g.textAlign = align; g.fillText(str, x, y);
-}
+export function smallText(g, str, x, y, color = COL.dim, align = 'left') { text(g, str, x, y, color, null, align, 6); }

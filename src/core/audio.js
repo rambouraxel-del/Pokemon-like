@@ -79,7 +79,7 @@ class AudioEngine {
       this.noiseBuf = this.makeNoise();
     }
     if (this.ctx.state === 'suspended') this.ctx.resume();
-    if (this.pendingTrack) { const t = this.pendingTrack; this.pendingTrack = null; this.music(t); }
+    if (this.wantTrack !== undefined) { const t = this.wantTrack; this.wantTrack = undefined; this.trackName = null; this.music(t); }
   }
   makeNoise() {
     const b = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.5, this.ctx.sampleRate);
@@ -101,10 +101,10 @@ class AudioEngine {
     return p;
   }
   music(name) {
-    if (name === this.trackName) return;
+    if (!this.ctx) { this.wantTrack = name; return; }        // lancée au premier geste utilisateur (init)
+    if (name === this.trackName && this.timer) return;
     this.trackName = name;
-    if (!this.ctx) { this.pendingTrack = name; return; }
-    clearInterval(this.timer);
+    clearInterval(this.timer); this.timer = null;
     if (!name) { this.current = null; return; }
     this.current = this.parse(name);
     this.step = 0;

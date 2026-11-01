@@ -51,10 +51,11 @@ function whiteSprite(spr, key) {
 }
 
 export class BattleScene {
+  get sceneId() { return 'battle'; }
   constructor(o) {
     this.o = o; this.kind = o.kind; this.trainer = o.trainer || null; this.isWild = o.kind === 'wild';
     this.enemies = o.enemies; this.eIndex = 0;
-    this.bg = makeBackground(o.bg); this.t = 0; this.shakeT = 0; this.effects = [];
+    this.bg = makeBackground(o.bg); this.shakeUntil = 0; this.effects = [];
     this.side = { p: this.mkSide(), e: this.mkSide() };
     this.stages = { p: { atk: 0, def: 0, spd: 0 }, e: { atk: 0, def: 0, spd: 0 } };
     this.hpShown = { p: 0, e: 0 }; this.expShown = 0;
@@ -66,10 +67,11 @@ export class BattleScene {
   get ec() { return this.enemies[this.eIndex]; }
   cr(side) { return side === 'p' ? this.pc : this.ec; }
   nm(side) { const c = this.cr(side); const n = SPECIES[c.species].name; return side === 'p' ? n : (this.isWild ? `${n} sauvage` : `${n} adverse`); }
+  get t() { return clock.time; }
   enter() {}
   render(g) {
     g.save();
-    if (this.shakeT > 0) g.translate(Math.round((Math.random() - 0.5) * 6), Math.round((Math.random() - 0.5) * 4));
+    if (clock.time < this.shakeUntil) g.translate(Math.round((Math.random() - 0.5) * 6), Math.round((Math.random() - 0.5) * 4));
     g.drawImage(this.bg, 0, 0);
     // plates-formes
     this.platform(g, POS.e.x, POS.e.ground - 2, 50, 9, '#5a9a48', '#78b860');
@@ -83,7 +85,7 @@ export class BattleScene {
     if (this.pi >= 0 && this.side.e.visible !== undefined) { this.infoBox(g, 'e'); this.infoBox(g, 'p'); }
     if (this.menuDraw) this.menuDraw(g);
   }
-  update(dt) { this.t += dt; if (this.shakeT > 0) this.shakeT -= dt; }
+  update() {}
   platform(g, x, y, rx, ry, c1, c2) {
     g.fillStyle = 'rgba(20,40,20,0.35)'; g.beginPath(); g.ellipse(x, y + 3, rx + 3, ry + 2, 0, 0, 6.3); g.fill();
     g.fillStyle = c1; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 6.3); g.fill();
@@ -121,8 +123,8 @@ export class BattleScene {
     text(g, 'N.' + c.level, x + w - 8, y + 6, COL.text, null, 'right');
     // badge de type
     const tc = TYPES[sp.type];
-    g.fillStyle = tc.color; g.fillRect(x + 8, y + 17, tc.name.length * 6 + 6, 9); text(g, '', 0, 0);
-    g.font = '6px "Press Start 2P"'; g.fillStyle = '#fff'; g.textBaseline = 'top'; g.textAlign = 'left'; g.fillText(tc.name.toUpperCase(), x + 11, y + 19);
+    g.fillStyle = tc.color; g.fillRect(x + 8, y + 17, tc.name.length * 6 + 6, 9);
+    text(g, tc.name.toUpperCase(), x + 11, y + 19, '#fff', null, 'left', 6);
     if (!isP && this.isWild && G.s.dex[c.species] === 'caught') { g.fillStyle = '#e8584a'; g.beginPath(); g.arc(x + w - 14, y + 21, 4, 0, 6.3); g.fill(); g.fillStyle = '#fff'; g.fillRect(x + w - 18, y + 20, 8, 2); }
     // PV
     const mh = maxHp(c), shown = this.hpShown[side], r = clamp(shown / mh, 0, 1);
@@ -139,7 +141,7 @@ export class BattleScene {
     const st = this.stages[side]; let sx = x + (isP ? 70 : 62);
     if (this.side[side].visible) for (const k of ['atk', 'def', 'spd']) if (st[k]) {
       const label = { atk: 'AT', def: 'DF', spd: 'VT' }[k] + (st[k] > 0 ? '+' : '') + st[k];
-      g.font = '6px "Press Start 2P"'; g.fillStyle = st[k] > 0 ? '#d83a3a' : '#3a58d8'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillText(label, sx, y + 19); sx += label.length * 6 + 4;
+      text(g, label, sx, y + 19, st[k] > 0 ? '#d83a3a' : '#3a58d8', null, 'left', 6); sx += label.length * 6 + 4;
     }
   }
 
@@ -275,14 +277,14 @@ export class BattleScene {
       cols: 2, x: 4, y: 146, w: 312, h: 44, lineH: 16, cancel: -1,
       draw: (g, m) => {
         panel(g, 4, 146, 312, 44);
-        m.opts.forEach((o, i) => { const cx = 14 + (i % 2) * 100, cy = 154 + Math.floor(i / 2) * 18; text(g, o.label.length > 11 ? o.label.slice(0, 11) : o.label, cx + 8, cy, COL.text); if (i === m.index) cursor(g, cx, cy); });
+        m.opts.forEach((o, i) => { const cx = 12 + (i % 2) * 106, cy = 154 + Math.floor(i / 2) * 18; text(g, o.label.slice(0, 12), cx + 8, cy, COL.text); if (i === m.index) cursor(g, cx, cy); });
         const mv = MOVES[c.moves[m.index]], info = moveInfo(c.moves[m.index]), tc = TYPES[mv.type];
         g.fillStyle = COL.navy; g.fillRect(222, 150, 1, 36);
-        g.fillStyle = tc.color; g.fillRect(228, 153, 52, 10); g.font = '6px "Press Start 2P"'; g.fillStyle = '#fff'; g.textBaseline = 'top'; g.textAlign = 'left'; g.fillText(tc.name.toUpperCase(), 232, 155);
+        g.fillStyle = tc.color; g.fillRect(228, 153, 52, 10); text(g, tc.name.toUpperCase(), 232, 155, '#fff', null, 'left', 6);
         text(g, info.power ? `Puiss ${info.power}` : mv.kind === 'heal' ? 'Soin' : 'Statut', 228, 166, COL.text);
-        g.font = '6px "Press Start 2P"'; g.fillStyle = COL.dim; g.fillText(info.text, 228, 179);
+        text(g, info.text, 228, 179, COL.dim, null, 'left', 6);
         // affinité contre l'adversaire
-        if (mv.kind === 'dmg') { const e = effectiveness(mv.type, SPECIES[this.ec.species].type); g.fillStyle = e > 1 ? '#2a9a4a' : e < 1 ? '#c83a3a' : COL.dim; g.fillText(e > 1 ? 'x2' : e < 1 ? 'x0.5' : 'x1', 292, 155); }
+        if (mv.kind === 'dmg') { const e = effectiveness(mv.type, SPECIES[this.ec.species].type); text(g, e > 1 ? 'x2' : e < 1 ? 'x0.5' : 'x1', 292, 155, e > 1 ? '#2a9a4a' : e < 1 ? '#c83a3a' : COL.dim, null, 'left', 6); }
       },
     });
     if (idx < 0) return null;
@@ -362,7 +364,7 @@ export class BattleScene {
     dmg = Math.max(1, dmg);
     def.hp = Math.max(0, def.hp - dmg);
     audio.sfx(eff > 1 ? 'super' : eff < 1 ? 'weak' : 'hit');
-    this.shakeT = eff > 1 ? 0.3 : 0.15;
+    this.shakeUntil = clock.time + (eff > 1 ? 0.3 : 0.15);
     const hf = this.hitFlash(other); await this.setHp(other, def.hp, 0.55); await hf;
     if (crit) await this.msg("Coup critique !", 0.7);
     if (eff > 1) await this.msg("C'est super efficace !", 0.9); else if (eff < 1) await this.msg("Ce n'est pas très efficace...", 0.9);

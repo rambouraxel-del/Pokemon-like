@@ -5,7 +5,8 @@
   const frames = async (n) => { for (let i = 0; i < n; i++) await frame(); };
   const world = () => L().world;
   const top = () => L().scenes.top;
-  const isBattle = () => top() && top().constructor.name === 'BattleScene';
+  const sid = () => (top() ? top().sceneId : '');
+  const isBattle = () => sid() === 'battle';
   const isWorld = () => top() === world();
   async function tap(name, n = 2) { L().input.press(name); await frames(n); L().input.release(name); await frames(2); L().input.releaseAll(); }
   async function waitUntil(fn, timeoutFrames = 1800) { for (let i = 0; i < timeoutFrames; i++) { if (fn()) return true; await frame(); } return false; }
@@ -70,11 +71,11 @@
   async function autoHandle(opts) {
     opts = opts || window.botOpts || {};
     for (let guard = 0; guard < 9000; guard++) {
-      const name = top() ? top().constructor.name : '';
+      const name = sid();
       if (isBattle()) { await fightStep(opts); continue; }
-      if (name === 'BagScene') { await overlayBag(opts); continue; }
-      if (name === 'TeamScene') { await overlayTeam(opts); continue; }
-      if (name === 'EndingScene') { await tap('a', 1); await frames(30); continue; }
+      if (name === 'bag') { await overlayBag(opts); continue; }
+      if (name === 'team') { await overlayTeam(opts); continue; }
+      if (name === 'ending') { await tap('a', 1); await frames(30); continue; }
       if (L().ui.box && !L().ui.menu) { await tap('a', 1); continue; }
       if (L().ui.menu) { await tap('a', 1); continue; }
       if (L().fx.mode || (!isWorld())) { await frames(3); continue; }
@@ -106,7 +107,7 @@
     if (ui.menu) {
       const labels = ui.menu.opts.map((o) => o.label);
       if (labels[0] === 'Attaque') {
-        if (opts.catch && b.isWild && b.ec.hp < window.__maxHp(b.ec) * 0.45) { // capture : utiliser un objet une fois affaibli
+        if (opts.catch && b.isWild && (b.ec.hp < window.__maxHp(b.ec) * 0.45 || b.pc.level >= b.ec.level + 6)) { // capture : utiliser un objet une fois affaibli
           const hasBall = L().G.count('lanterne') + L().G.count('super_lanterne') > 0;
           if (hasBall) { window.botIntent = 'ball'; await tap_choose(1); return; }
         }
@@ -114,6 +115,7 @@
         if (opts.heal && b.pc.hp < opts.heal * maxHpOf(b.pc) && (L().G.count('baume') + L().G.count('grand_baume')) > 0 && b.pc.hp > 0) { window.botIntent = 'heal'; await tap_choose(1); return; }
         await tap_choose(0); return;
       }
+      if (labels.includes('Ne pas apprendre') && window.__holdLearn) { await frames(3); return; }
       if (labels.includes('Ne pas apprendre')) {
         const weak = b.pc.moves.findIndex((m) => ['charge', 'rugissement', 'posture'].includes(m));
         await tap_choose(weak >= 0 ? weak : 4); return;
@@ -126,12 +128,21 @@
     await frames(3);
   }
   async function tap_choose(i) { pickMenu(i); await tap('a', 1); }
-  function bestMove(b) { const M = window.__movesData; let best = 0, bs = -1; b.pc.moves.forEach((id, i) => { const m = M[id]; const s = m.kind === 'dmg' ? m.power * (m.acc / 100) : 1; if (s > bs) { bs = s; best = i; } }); return best; }
+  function bestMove(b) {
+    const M = window.__movesData, T = window.__types, es = T.SPECIES[b.ec.species], ps = T.SPECIES[b.pc.species];
+    let best = 0, bs = -1;
+    b.pc.moves.forEach((id, i) => { const m = M[id]; let s = 1; if (m.kind === 'dmg') s = m.power * (m.acc / 100) * T.effectiveness(m.type, es.type) * (m.type === ps.type ? 1.5 : 1); if (s > bs) { bs = s; best = i; } });
+    return best;
+  }
   // va se placer à côté de (tx,ty), se tourne vers la case et appuie sur A
   async function talkAt(tx, ty, opts = {}) {
-    const w = world(); const dirs = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] }; // côté depuis lequel on regarde -> d = direction à regarder
+    const w = world(); const dirs = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] }; // clé = direction du regard ; valeur = décalage de la case où se tenir
     const cand = [];
-    for (const [dir, off] of Object.entries(dirs)) { const x = tx + off[0], y = ty + off[1]; const path = (w.canMove(x, y, w.player) || (w.player.x === x && w.player.y === y)) ? (w.player.x === x && w.player.y === y ? [] : bfs(x, y)) : null; if (path) cand.push({ dir, x, y, len: path.length }); }
+    for (const [dir, off] of Object.entries(dirs)) {
+      const x = tx + off[0], y = ty + off[1]; const here = w.player.x === x && w.player.y === y;
+      if (!(here || w.canMove(x, y, w.player))) continue;
+      const path = here ? [] : bfs(x, y); if (path) cand.push({ dir, x, y, len: path.length });
+    }
     cand.sort((a, b) => a.len - b.len);
     if (!cand.length) return 'nopath';
     const c = cand[0];
@@ -142,7 +153,16 @@
     await tap('a', 1);
     return 'talked';
   }
-  window.bot = { talkAt, frames, tap, waitUntil, waitIdle, advance, bfs, walkTo, autoHandle, step, idle, isBattle, isWorld, top, pickMenu, tap_choose, fightStep };
+  // achat en boutique : sélectionne l'article, la quantité, valide et ferme le message
+  async function shopBuy(idx, q) {
+    const s = top(); s.i = idx; await tap('a', 1);
+    if (!await waitUntil(() => L().ui.menu, 200)) return 'nomenu';
+    L().ui.menu.index = Math.min(q - 1, L().ui.menu.opts.length - 1); await tap('a', 1);
+    await waitUntil(() => L().ui.box, 200);
+    for (let i = 0; i < 20 && (L().ui.box || L().ui.menu); i++) { await tap('a', 1); await frames(10); }
+    return 'ok';
+  }
+  window.bot = { bestMove, shopBuy, talkAt, frames, tap, waitUntil, waitIdle, advance, bfs, walkTo, autoHandle, step, idle, isBattle, isWorld, top, pickMenu, tap_choose, fightStep };
 })();
 // --- aides de debug ---
 window.bot.tp = (mapId, x, y, dir = 'down') => { const w = window.__lumina.world; w.loadMap(mapId, x, y, dir); w.cameraSnap(); };

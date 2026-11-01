@@ -11,6 +11,7 @@ export function applySettings() {
   audio.setVolume(s.volume ?? 0.7); audio.setMuted(!!s.muted);
 }
 export class OptionsScene {
+  get sceneId() { return 'options'; }
   constructor(resolve, world) { this.resolve = resolve; this.world = world; this.i = 0; this.t = 0; this.busy = false; this.s = { volume: 0.7, muted: false, ...loadSettings() }; }
   rows() { return world => null; }
   update(dt) {

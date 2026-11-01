@@ -48,9 +48,9 @@ const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
   // --- achats + soin ---
   await go(5, 8); await idle(); await go(30, 7); await idle();
   await talk(3, 3);
-  await t.ev(async () => { for (let i = 0; i < 20 && (top().constructor.name !== 'ShopScene'); i++) { await bot.tap('a', 1); await bot.frames(15); } function top() { return window.__lumina.scenes.top; } });
+  await t.ev(async () => { const top = () => window.__lumina.scenes.top.sceneId; for (let i = 0; i < 200 && top() !== 'shop'; i++) { const b = window.__lumina.ui.box; if (b && b.waiting) await bot.tap('a', 1); await bot.frames(6); } });
   await shot('05_shop');
-  const buy = async (idx, q) => t.ev(async ([idx, q]) => { const s = window.__lumina.scenes.top; s.i = idx; await bot.tap('a', 1); await bot.frames(10); window.__lumina.ui.menu.index = q - 1; await bot.tap('a', 1); await bot.frames(10); await bot.tap('a', 1); await bot.frames(20); }, [idx, q]);
+  const buy = async (idx, q) => t.ev(([idx, q]) => bot.shopBuy(idx, q), [idx, q]);
   const money0 = await t.ev(() => window.__lumina.G.s.money);
   await buy(0, 4);      // 4 lanternes
   await buy(2, 2);      // 2 baumes

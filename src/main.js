@@ -24,14 +24,15 @@ function resize() {
   const vw = window.innerWidth, vh = window.innerHeight, dpr = window.devicePixelRatio || 1;
   const portrait = vh > vw;
   let availW = vw, availH = vh;
-  if (touchMode) { if (portrait) availH = vh - 190; else availW = vw - 2 * 150; }
+  if (touchMode) { if (portrait) availH = vh - 190; else availW = vw - 2 * 142; }
   let s = Math.min(availW / W, availH / H);
-  const sd = Math.floor(s * dpr) / dpr; if (sd >= 1) s = sd;
+  const sd = Math.floor(s * dpr) / dpr;
+  s = (sd >= 1 && sd >= s * 0.85) ? sd : Math.max(0.5, Math.floor(s * 20) / 20);   // échelle entière si elle perd peu, sinon fractionnaire
   const w = Math.floor(W * s), h = Math.floor(H * s);
   canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   const stage = document.getElementById('stage');
   stage.style.left = Math.floor((vw - w) / 2) + 'px';
-  stage.style.top = (portrait && touchMode ? Math.max(0, Math.floor((availH - h) / 2)) : Math.floor((vh - h) / 2)) + 'px';
+  stage.style.top = (portrait && touchMode ? Math.max(8, Math.floor((availH - h) / 2)) : Math.floor((vh - h) / 2)) + 'px';
   document.getElementById('rotate').hidden = !(touchMode && portrait && !rotateDismissed);
 }
 let rotateDismissed = false;
@@ -94,7 +95,8 @@ async function startGame(mode) {
   await fx.in(0.5);
   if (!world.map.indoor) world.showBanner(world.map.name);
 }
-export function returnToTitle() { G.playing = false; scenes.replace(new TitleScene(startGame)); }
+export function returnToTitle() { G.playing = false; ui.hide(); ui.menu = null; fx.clear(); scenes.replace(new TitleScene(startGame)); }
+window.addEventListener('lumina:title', returnToTitle);
 
 // ---------- boucle principale ----------
 let last = performance.now();
@@ -127,4 +129,7 @@ import { MOVES } from './data/moves.js';
 window.__movesData = MOVES; window.__movesName = (id) => MOVES[id].name;
 import { makeCreature, maxHp } from './systems/creatures.js';
 window.__maxHp = maxHp;
-window.__lumina = { mk: (sp, lv) => { const c = makeCreature(sp, lv); G.addCreature(c); return c; }, G, scenes, ui, clock, input, fx, audio, get world() { return world; }, START_POS };
+import { effectiveness } from './data/types.js';
+import { SPECIES } from './data/species.js';
+window.__types = { effectiveness, SPECIES };
+window.__lumina = { mkc: makeCreature, mk: (sp, lv) => { const c = makeCreature(sp, lv); G.addCreature(c); return c; }, G, scenes, ui, clock, input, fx, audio, get world() { return world; }, START_POS };

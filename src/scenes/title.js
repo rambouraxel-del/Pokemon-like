@@ -12,6 +12,7 @@ import { smallText } from './common.js';
 import { INTRO_PAGES } from '../data/story.js';
 
 export class TitleScene {
+  get sceneId() { return 'title'; }
   constructor(startGame) { this.startGame = startGame; this.t = 0; this.phase = 'press'; this.i = 0; this.busy = false; this.stars = Array.from({ length: 50 }, (_, k) => ({ x: (k * 97) % W, y: (k * 41) % 110, s: (k % 3) + 1 })); }
   enter() { audio.music('title'); }
   items() { return G.hasSave() ? ['Continuer', 'Nouvelle partie', 'Options'] : ['Nouvelle partie', 'Options']; }
@@ -30,7 +31,7 @@ export class TitleScene {
       if (label === 'Continuer') { if (G.load()) await this.startGame('continue'); else await ui.say(["Impossible de lire la sauvegarde."]); }
       else if (label === 'Nouvelle partie') {
         if (G.hasSave()) {
-          const r = await ui.ask("Une sauvegarde existe déjà. L'effacer et commencer une nouvelle aventure ?", ['Non', 'Oui, effacer']);
+          const r = await ui.ask("Écraser la sauvegarde et recommencer ?", ['Non', 'Oui, effacer']);
           if (r !== 1) return;
           clearSave();
         }
@@ -78,6 +79,7 @@ export class TitleScene {
 }
 
 export class IntroScene {
+  get sceneId() { return 'intro'; }
   constructor(done) { this.done = done; this.page = 0; this.shown = 0; this.t = 0; this.state = 'typing'; this.busy = false; }
   enter() { audio.music('inside'); }
   update(dt) {
